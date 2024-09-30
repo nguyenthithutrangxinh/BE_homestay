@@ -26,6 +26,9 @@ const createRoom = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
+    // Kiểm tra nếu có hình ảnh được upload
+    const images = req.files.map((file) => file.path); // Get paths of uploaded images
+
     // Tạo phòng mới
     const room = await Room.create({
       name,
@@ -35,6 +38,7 @@ const createRoom = async (req, res) => {
       status,
       id_location,
       id_service,
+      images, // Include the images
     });
 
     res.status(201).json({ message: "Room created successfully", room });
@@ -88,6 +92,11 @@ const updateRoom = async (req, res) => {
   try {
     const updates = req.body;
 
+    // Kiểm tra xem có hình ảnh được upload không
+    if (req.files) {
+      updates.images = req.files.map((file) => file.path); // Get paths of uploaded images
+    }
+
     // Cập nhật phòng
     const room = await Room.findByIdAndUpdate(req.params.id, updates, {
       new: true, // Trả về giá trị mới sau khi cập nhật
@@ -121,6 +130,7 @@ const deleteRoom = async (req, res) => {
   }
 };
 
+// Export all methods
 module.exports = {
   createRoom,
   getAllRooms,

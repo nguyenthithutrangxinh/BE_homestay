@@ -1,20 +1,33 @@
 const express = require("express");
 const router = express.Router();
 const feedbackController = require("../controllers/feedbackController");
+const authMiddleware = require("../middlewares/authentication");
 
 // Tạo phản hồi mới
-router.post("/", feedbackController.createFeedback);
+router.post("/", authMiddleware.verifyToken, feedbackController.createFeedback);
 
 // Lấy tất cả phản hồi theo phòng (có phân trang)
-router.get("/", feedbackController.getAllFeedbacks);
+router.get("/", authMiddleware.verifyToken, feedbackController.getAllFeedbacks);
 
 // Lấy phản hồi theo ID
-router.get("/:id", feedbackController.getFeedbackById);
+router.get(
+  "/:id",
+  authMiddleware.verifyToken,
+  feedbackController.getFeedbackById
+);
 
 // Cập nhật phản hồi theo ID
-router.put("/:id", feedbackController.updateFeedback);
+router.put(
+  "/:id",
+  authMiddleware.verifyToken,
+  feedbackController.updateFeedback
+);
 
 // Xóa phản hồi theo ID
-router.delete("/:id", feedbackController.deleteFeedback);
+router.delete(
+  "/:id",
+  authMiddleware.verifyToken,
+  feedbackController.deleteFeedback
+);
 
 module.exports = router;

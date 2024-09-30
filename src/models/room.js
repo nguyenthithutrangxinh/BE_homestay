@@ -12,7 +12,7 @@ const roomSchema = new mongoose.Schema(
     },
     type: {
       type: String,
-      enum: ["Single", "Double", "Suite", "Family", "Dormitory"], // Các loại phòng có thể
+      enum: ["Single", "Double", "Suite", "Family", "Dormitory"], // Types of rooms
       required: true,
     },
     description: {
@@ -32,6 +32,10 @@ const roomSchema = new mongoose.Schema(
     id_service: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Service",
+      required: true,
+    },
+    images: {
+      type: [String],
       required: true,
     },
   },
