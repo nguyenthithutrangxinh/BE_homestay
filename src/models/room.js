@@ -22,7 +22,7 @@ const roomSchema = new mongoose.Schema(
     status: {
       type: String,
       enum: ["Available", "Occupied", "Maintenance", "Booked"],
-      required: true,
+      default: "Available",
     },
     id_location: {
       type: mongoose.Schema.Types.ObjectId,

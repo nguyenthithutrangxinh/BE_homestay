@@ -26,6 +26,7 @@ const getAllLocations = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query; // Phân trang với giá trị mặc định
     const locations = await Location.find()
+      .sort({ createdAt: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .exec();
@@ -34,7 +35,7 @@ const getAllLocations = async (req, res) => {
 
     res.status(200).json({
       locations,
-      totalPages: Math.ceil(count / limit),
+      totalPages: count,
       currentPage: parseInt(page),
     });
   } catch (error) {

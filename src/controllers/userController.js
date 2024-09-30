@@ -50,7 +50,7 @@ const login = async (req, res) => {
     // Tạo token JWT
     const accessToken = jwt.sign(
       { userId: user._id, role: user.role },
-      process.env.SECRET_KEY,
+      process.env.JWT_SECRET,
       {
         expiresIn: "30d",
       }
@@ -63,12 +63,15 @@ const login = async (req, res) => {
       email: user.email,
       phone: user.phone,
       role: user.role,
-      accessToken,
     };
 
     res
       .status(200)
-      .json({ message: "Login successful", user: userWithoutPassword });
+      .json({
+        message: "Login successful",
+        user: userWithoutPassword,
+        accessToken,
+      });
   } catch (error) {
     console.error("Login Error:", error);
     res.status(500).json({ error: error.message });

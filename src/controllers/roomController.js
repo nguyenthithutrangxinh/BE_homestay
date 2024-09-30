@@ -8,9 +8,9 @@ const createRoom = async (req, res) => {
       max_occupancy,
       type,
       description,
-      status,
       id_location,
       id_service,
+      images,
     } = req.body;
 
     // Kiểm tra nếu có trường bắt buộc bị thiếu
@@ -19,15 +19,16 @@ const createRoom = async (req, res) => {
       !max_occupancy ||
       !type ||
       !description ||
-      !status ||
       !id_location ||
       !id_service
     ) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    // Kiểm tra nếu có hình ảnh được upload
-    const images = req.files.map((file) => file.path); // Get paths of uploaded images
+    // Ensure 'images' is an array of strings (URLs)
+    if (!Array.isArray(images) || images.length === 0) {
+      return res.status(400).json({ message: "Images are required" });
+    }
 
     // Tạo phòng mới
     const room = await Room.create({
@@ -35,10 +36,9 @@ const createRoom = async (req, res) => {
       max_occupancy,
       type,
       description,
-      status,
       id_location,
       id_service,
-      images, // Include the images
+      images, // Images are now URLs, not file paths
     });
 
     res.status(201).json({ message: "Room created successfully", room });
@@ -46,6 +46,8 @@ const createRoom = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Update other functions (updateRoom, getAllRooms, etc.) similarly to handle images as an array of URLs.
 
 // Lấy tất cả các phòng (có phân trang)
 const getAllRooms = async (req, res) => {

@@ -3,15 +3,15 @@ const Service = require("../models/service");
 // Tạo dịch vụ mới
 const createService = async (req, res) => {
   try {
-    const { name, type, status } = req.body;
+    const { name, type } = req.body;
 
     // Kiểm tra nếu các giá trị cần thiết không có
-    if (!name || !type || !status) {
+    if (!name || !type) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
     // Tạo một dịch vụ mới
-    const service = await Service.create({ name, type, status });
+    const service = await Service.create({ name, type });
 
     res.status(201).json({ message: "Service created successfully", service });
   } catch (error) {
@@ -24,6 +24,7 @@ const getAllServices = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query; // Đặt giá trị mặc định cho phân trang
     const services = await Service.find()
+      .sort({ createdAt: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .exec();
@@ -32,7 +33,7 @@ const getAllServices = async (req, res) => {
 
     res.status(200).json({
       services,
-      totalPages: Math.ceil(count / limit),
+      totalPages: count,
       currentPage: parseInt(page),
     });
   } catch (error) {
