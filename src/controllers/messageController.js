@@ -1,4 +1,4 @@
-const Message = require("../models/message");
+const Message = require("../models/messages");
 
 // Tạo tin nhắn mới
 const createMessage = async (req, res) => {
