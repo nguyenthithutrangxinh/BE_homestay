@@ -1,26 +1,26 @@
-const uploadSingleImage = async (req, res) => {
+const cloudinary = require("../config/cloudinary/index");
+
+const uploadFile = async (req, res) => {
   try {
-    // Kiểm tra nếu có hình ảnh được upload
-    if (!req.file) {
+    const file = req.file;
+    if (!file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
-    // Lấy đường dẫn của ảnh đã upload
-    const imagePath = req.file.path;
-
-    // Trả về thông tin của ảnh đã upload
-    res.status(200).json({
-      message: "Image uploaded successfully",
-      image: {
-        filename: req.file.originalname,
-        path: imagePath,
-      },
+    const result = await new Promise((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream((error, result) => {
+        if (error) reject(error);
+        else resolve(result);
+      });
+      stream.end(file.buffer);
     });
+
+    res.status(200).json({ message: "Upload successful", result });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: "Something went wrong", error });
   }
 };
 
 module.exports = {
-  uploadSingleImage,
+  uploadFile,
 };
