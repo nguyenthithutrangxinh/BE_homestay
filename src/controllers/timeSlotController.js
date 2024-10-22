@@ -26,6 +26,7 @@ const getAllTimeSlots = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query; // Phân trang với giá trị mặc định
     const timeSlots = await TimeSlots.find()
+      .sort({ from: 1 })
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .exec();

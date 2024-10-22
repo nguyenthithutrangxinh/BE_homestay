@@ -65,13 +65,11 @@ const login = async (req, res) => {
       role: user.role,
     };
 
-    res
-      .status(200)
-      .json({
-        message: "Login successful",
-        user: userWithoutPassword,
-        accessToken,
-      });
+    res.status(200).json({
+      message: "Login successful",
+      user: userWithoutPassword,
+      accessToken,
+    });
   } catch (error) {
     console.error("Login Error:", error);
     res.status(500).json({ error: error.message });
@@ -88,6 +86,7 @@ const getAllUsers = async (req, res) => {
   try {
     const { page = 1, limit = 10 } = req.query;
     const users = await User.find()
+      .sort({ createdAt: -1 })
       .select("-password")
       .limit(limit * 1)
       .skip((page - 1) * limit)

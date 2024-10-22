@@ -11,11 +11,11 @@ const timeSlotSchema = new mongoose.Schema(
       required: true,
     },
     from: {
-      type: Date,
+      type: String,
       required: true,
     },
     to: {
-      type: Date,
+      type: String,
       required: true,
     },
   },

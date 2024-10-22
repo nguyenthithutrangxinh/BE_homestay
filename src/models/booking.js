@@ -7,11 +7,20 @@ const bookingSchema = new mongoose.Schema(
       ref: "Room",
       required: true,
     },
-    id_time_slot: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "TimeSlots",
-      required: true,
-    },
+    id_location: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Location",
+        required: true,
+      },
+    ],
+    id_time_slot: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "TimeSlots",
+        required: true,
+      },
+    ],
     id_user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",

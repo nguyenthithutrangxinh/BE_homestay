@@ -3,32 +3,51 @@ const Booking = require("../models/booking");
 // Tạo một booking mới
 const createBooking = async (req, res) => {
   try {
-    const { id_room, id_time_slot, id_user, date_booking } = req.body;
+    const { id_room, id_location, id_time_slot, id_user, date_booking } =
+      req.body;
 
     // Kiểm tra xem tất cả các trường bắt buộc có được cung cấp không
-    if (!id_room || !id_time_slot || !id_user || !date_booking) {
+    if (
+      !id_room ||
+      !id_location ||
+      !id_time_slot ||
+      !id_user ||
+      !date_booking
+    ) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    // Kiểm tra trùng lặp booking
-    const existingBooking = await Booking.findOne({
-      id_room,
-      id_time_slot,
-      date_booking: {
-        $gte: new Date(date_booking.setHours(0, 0, 0, 0)),
-        $lt: new Date(date_booking.setHours(23, 59, 59, 999)),
-      },
-    });
-
-    if (existingBooking) {
+    // Kiểm tra xem ngày đặt có phải là quá khứ không
+    const currentDate = new Date();
+    if (new Date(date_booking) < currentDate.setHours(0, 0, 0, 0)) {
       return res.status(400).json({
-        message: "This time slot is already booked for the selected date.",
+        message: "You cannot book for a past date.",
       });
+    }
+
+    // Kiểm tra trùng lặp booking với từng slot time
+    for (let i = 0; i < id_time_slot.length; i++) {
+      const existingBooking = await Booking.findOne({
+        id_room,
+        id_location,
+        id_time_slot: id_time_slot[i],
+        date_booking: {
+          $gte: new Date(new Date(date_booking).setHours(0, 0, 0, 0)),
+          $lt: new Date(new Date(date_booking).setHours(23, 59, 59, 999)),
+        },
+      });
+
+      if (existingBooking) {
+        return res.status(400).json({
+          message: `Time slot ${id_time_slot[i]} is already booked for the selected date.`,
+        });
+      }
     }
 
     // Tạo booking mới
     const newBooking = await Booking.create({
       id_room,
+      id_location,
       id_time_slot,
       id_user,
       date_booking,
@@ -50,8 +69,12 @@ const getAllBookings = async (req, res) => {
     // Truy vấn để lấy tất cả booking
     const bookings = await Booking.find()
       .populate("id_room")
+      .populate("id_location")
       .populate("id_time_slot")
-      .populate("id_user")
+      .populate({
+        path: "id_user",
+        select: "-password",
+      })
       .limit(limit * 1)
       .skip((page - 1) * limit)
       .exec();
@@ -76,6 +99,7 @@ const getBookingById = async (req, res) => {
     // Tìm booking theo ID
     const booking = await Booking.findById(id)
       .populate("id_room")
+      .populate("id_location")
       .populate("id_time_slot")
       .populate("id_user");
 
@@ -98,6 +122,7 @@ const getBookingsByUserId = async (req, res) => {
     // Truy vấn để lấy tất cả booking theo id_user
     const bookings = await Booking.find({ id_user })
       .populate("id_room")
+      .populate("id_location")
       .populate("id_time_slot")
       .limit(limit * 1)
       .skip((page - 1) * limit)
@@ -124,19 +149,24 @@ const updateBooking = async (req, res) => {
     // Kiểm tra xem có trường ngày đặt không
     if (updates.date_booking) {
       // Kiểm tra trùng lặp booking
-      const existingBooking = await Booking.findOne({
-        id_room: updates.id_room,
-        id_time_slot: updates.id_time_slot,
-        date_booking: {
-          $gte: new Date(updates.date_booking.setHours(0, 0, 0, 0)),
-          $lt: new Date(updates.date_booking.setHours(23, 59, 59, 999)),
-        },
-      });
-
-      if (existingBooking) {
-        return res.status(400).json({
-          message: "This time slot is already booked for the selected date.",
+      for (let i = 0; i < updates.id_time_slot.length; i++) {
+        const existingBooking = await Booking.findOne({
+          id_room: updates.id_room,
+          id_location: updates.id_location,
+          id_time_slot: updates.id_time_slot[i],
+          date_booking: {
+            $gte: new Date(new Date(updates.date_booking).setHours(0, 0, 0, 0)),
+            $lt: new Date(
+              new Date(updates.date_booking).setHours(23, 59, 59, 999)
+            ),
+          },
         });
+
+        if (existingBooking) {
+          return res.status(400).json({
+            message: `Time slot ${updates.id_time_slot[i]} is already booked for the selected date.`,
+          });
+        }
       }
     }
 

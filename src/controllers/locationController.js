@@ -3,15 +3,15 @@ const Location = require("../models/location");
 // Tạo địa điểm mới
 const createLocation = async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name, address } = req.body;
 
     // Kiểm tra nếu có trường bắt buộc bị thiếu
-    if (!name) {
-      return res.status(400).json({ message: "Name is required" });
+    if (!name || !address) {
+      return res.status(400).json({ message: "Name and address are required" });
     }
 
     // Tạo địa điểm mới
-    const location = await Location.create({ name });
+    const location = await Location.create({ name, address });
 
     res
       .status(201)
@@ -35,7 +35,7 @@ const getAllLocations = async (req, res) => {
 
     res.status(200).json({
       locations,
-      totalPages: count,
+      totalPages: Math.ceil(count / limit),
       currentPage: parseInt(page),
     });
   } catch (error) {
