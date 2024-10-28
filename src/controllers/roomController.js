@@ -152,6 +152,39 @@ const deleteRoom = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+const searchRoomsByName = async (req, res) => {
+  try {
+    const { name } = req.query; // Get the 'name' from the query string
+    const limit = parseInt(req.query.limit) || 10; // Set default limit to 10 if not provided
+    const page = parseInt(req.query.page) || 1; // Set default page to 1 if not provided
+
+    if (!name) {
+      return res
+        .status(400)
+        .json({ message: "Search term 'name' is required" });
+    }
+
+    // Search for rooms by name with regex, and add pagination
+    const rooms = await Room.find({ name: { $regex: name, $options: "i" } })
+      .populate("id_location")
+      .populate("id_service")
+      .skip((page - 1) * limit) // Skip documents for pagination
+      .limit(limit); // Limit documents per page
+
+    const count = await Room.countDocuments({
+      name: { $regex: name, $options: "i" },
+    });
+
+    res.status(200).json({
+      rooms,
+      totalPages: Math.ceil(count / limit), // Calculate total pages
+      currentPage: page, // Current page
+    });
+  } catch (error) {
+    console.error("Error in search:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
 
 // Export all methods
 module.exports = {
@@ -160,4 +193,5 @@ module.exports = {
   getRoomById,
   updateRoom,
   deleteRoom,
+  searchRoomsByName,
 };

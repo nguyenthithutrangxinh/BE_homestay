@@ -12,6 +12,12 @@ router.get("/", authMiddleware.verifyToken, roomController.getAllRooms);
 // Lấy thông tin chi tiết của phòng theo ID
 router.get("/:id", authMiddleware.verifyToken, roomController.getRoomById);
 
+router.get(
+  "/list/search",
+  authMiddleware.verifyToken,
+  roomController.searchRoomsByName
+);
+
 // Cập nhật phòng theo ID (with image upload)
 router.put("/:id", authMiddleware.verifyToken, roomController.updateRoom);
 

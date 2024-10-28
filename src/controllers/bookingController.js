@@ -68,6 +68,7 @@ const getAllBookings = async (req, res) => {
 
     // Truy vấn để lấy tất cả booking
     const bookings = await Booking.find()
+      .sort({ createdAt: -1 })
       .populate("id_room")
       .populate("id_location")
       .populate("id_time_slot")
@@ -121,6 +122,7 @@ const getBookingsByUserId = async (req, res) => {
 
     // Truy vấn để lấy tất cả booking theo id_user
     const bookings = await Booking.find({ id_user })
+      .sort({ createdAt: -1 })
       .populate("id_room")
       .populate("id_location")
       .populate("id_time_slot")
