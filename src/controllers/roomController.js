@@ -185,6 +185,35 @@ const searchRoomsByName = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+const getRoomsByLocationId = async (req, res) => {
+  try {
+    const { locationId } = req.params; // ID of the location
+    const limit = parseInt(req.query.limit) || 10; // Default limit of 10 if not provided
+    const page = parseInt(req.query.page) || 1; // Default page 1 if not provided
+
+    if (!locationId) {
+      return res.status(400).json({ message: "Location ID is required" });
+    }
+
+    // Find rooms by id_location and apply pagination
+    const rooms = await Room.find({ id_location: locationId })
+      .populate("id_location")
+      .populate("id_service")
+      .skip((page - 1) * limit)
+      .limit(limit);
+
+    const count = await Room.countDocuments({ id_location: locationId });
+
+    res.status(200).json({
+      rooms,
+      totalPages: Math.ceil(count / limit), // Calculate total pages
+      currentPage: page, // Current page
+    });
+  } catch (error) {
+    console.error("Error fetching rooms by location:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
 
 // Export all methods
 module.exports = {
@@ -194,4 +223,5 @@ module.exports = {
   updateRoom,
   deleteRoom,
   searchRoomsByName,
+  getRoomsByLocationId,
 };

@@ -108,6 +108,40 @@ const deleteFeedback = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+// Lấy tất cả phản hồi cho một phòng mà không có phân trang
+const getFeedbackByRoomID = async (req, res) => {
+  try {
+    const { roomId } = req.params; // Room ID
+
+    if (!roomId) {
+      return res.status(400).json({ message: "Room ID is required" });
+    }
+
+    const feedbacks = await Feedback.find({ id_room: roomId })
+      .populate("id_user")
+      .exec();
+
+    if (feedbacks.length === 0) {
+      return res
+        .status(404)
+        .json({ message: "No feedback found for this room" });
+    }
+
+    // Calculate the average rating
+    const totalRating = feedbacks.reduce(
+      (acc, feedback) => acc + feedback.rating,
+      0
+    );
+    const averageRating = totalRating / feedbacks.length;
+
+    res.status(200).json({
+      feedbacks,
+      averageRating: averageRating.toFixed(1), // Rounds to 2 decimal places
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
 module.exports = {
   createFeedback,
@@ -115,4 +149,5 @@ module.exports = {
   getFeedbackById,
   updateFeedback,
   deleteFeedback,
+  getFeedbackByRoomID,
 };

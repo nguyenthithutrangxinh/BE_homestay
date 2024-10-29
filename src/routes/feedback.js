@@ -8,6 +8,11 @@ router.post("/", authMiddleware.verifyToken, feedbackController.createFeedback);
 
 // Lấy tất cả phản hồi theo phòng (có phân trang)
 router.get("/", authMiddleware.verifyToken, feedbackController.getAllFeedbacks);
+router.get(
+  "/room/:roomId",
+  authMiddleware.verifyToken,
+  feedbackController.getFeedbackByRoomID
+);
 
 // Lấy phản hồi theo ID
 router.get(

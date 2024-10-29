@@ -11,6 +11,11 @@ router.get("/", authMiddleware.verifyToken, roomController.getAllRooms);
 
 // Lấy thông tin chi tiết của phòng theo ID
 router.get("/:id", authMiddleware.verifyToken, roomController.getRoomById);
+router.get(
+  "/location/:locationId",
+  authMiddleware.verifyToken,
+  roomController.getRoomsByLocationId
+);
 
 router.get(
   "/list/search",
