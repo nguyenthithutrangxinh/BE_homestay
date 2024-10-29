@@ -142,7 +142,28 @@ const getFeedbackByRoomID = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+const getAllFeedbacksPaginated = async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
 
+    const feedbacks = await Feedback.find({})
+      .limit(limit * 1)
+      .skip((page - 1) * limit)
+      .populate("id_user")
+      .populate("id_room")
+      .exec();
+
+    const count = await Feedback.countDocuments();
+
+    res.status(200).json({
+      feedbacks,
+      totalPages: Math.ceil(count / limit),
+      currentPage: parseInt(page),
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 module.exports = {
   createFeedback,
   getAllFeedbacks,
@@ -150,4 +171,5 @@ module.exports = {
   updateFeedback,
   deleteFeedback,
   getFeedbackByRoomID,
+  getAllFeedbacksPaginated,
 };

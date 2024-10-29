@@ -7,7 +7,11 @@ const authMiddleware = require("../middlewares/authentication");
 router.post("/", authMiddleware.verifyToken, feedbackController.createFeedback);
 
 // Lấy tất cả phản hồi theo phòng (có phân trang)
-router.get("/", authMiddleware.verifyToken, feedbackController.getAllFeedbacks);
+router.get(
+  "/",
+  authMiddleware.verifyToken,
+  feedbackController.getAllFeedbacksPaginated
+);
 router.get(
   "/room/:roomId",
   authMiddleware.verifyToken,
