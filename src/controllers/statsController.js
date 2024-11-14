@@ -44,7 +44,7 @@ exports.getTotalBookingRevenue = async (req, res) => {
             $gte: new Date(`${currentYear}-01-01`),
             $lt: new Date(`${currentYear + 1}-01-01`),
           },
-          status: "Pending", // Lọc theo trạng thái đã đặt thành công (Booked)
+          status: "Booked", // Lọc theo trạng thái đã đặt thành công (Booked)
         },
       },
       {

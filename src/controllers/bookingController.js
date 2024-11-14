@@ -145,44 +145,28 @@ const getBookingsByUserId = async (req, res) => {
 // Cập nhật một booking
 const updateBooking = async (req, res) => {
   try {
-    const updates = req.body;
     const { id } = req.params; // Lấy ID từ URL
+    const { status } = req.body; // Chỉ lấy giá trị status từ request body
 
-    // Kiểm tra xem có trường ngày đặt không
-    if (updates.date_booking) {
-      // Kiểm tra trùng lặp booking
-      for (let i = 0; i < updates.id_time_slot.length; i++) {
-        const existingBooking = await Booking.findOne({
-          id_room: updates.id_room,
-          id_location: updates.id_location,
-          id_time_slot: updates.id_time_slot[i],
-          date_booking: {
-            $gte: new Date(new Date(updates.date_booking).setHours(0, 0, 0, 0)),
-            $lt: new Date(
-              new Date(updates.date_booking).setHours(23, 59, 59, 999)
-            ),
-          },
-        });
-
-        if (existingBooking) {
-          return res.status(400).json({
-            message: `Time slot ${updates.id_time_slot[i]} is already booked for the selected date.`,
-          });
-        }
-      }
+    // Kiểm tra xem trạng thái có hợp lệ không
+    if (!status) {
+      return res.status(400).json({ message: "Status is required" });
     }
 
-    // Cập nhật booking
-    const booking = await Booking.findByIdAndUpdate(id, updates, {
-      new: true, // Trả về giá trị mới
-      runValidators: true,
-    });
+    // Cập nhật trạng thái booking
+    const booking = await Booking.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true, runValidators: true } // Trả về giá trị mới sau khi cập nhật
+    );
 
     if (!booking) {
       return res.status(404).json({ message: "Booking not found" });
     }
 
-    res.status(200).json({ message: "Booking updated successfully", booking });
+    res
+      .status(200)
+      .json({ message: "Booking status updated successfully", booking });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
